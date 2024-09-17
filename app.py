@@ -1,4 +1,8 @@
+from typing import Dict
+
 from fastapi import FastAPI
+from llama_index.core import Response
+
 from rag import querying, ingest
 from schemas import Question, Answer, Members
 
@@ -27,7 +31,7 @@ def read_root():
 
 
 @app.post("/question/", response_model=Answer, tags=["Query 🦙"])
-def query(question: Question):
+def query(question: Question) -> Dict[str, str]:
     """
     Realiza uma consulta ao índice e retorna a resposta.
 
@@ -39,4 +43,4 @@ def query(question: Question):
     """
     # Usa o atributo correto da classe Question
     answer = query_engine.query(question.question)
-    return {"answer": answer}
+    return {"answer": answer.response}
