@@ -180,4 +180,5 @@ pyrightconfig.json
 data
 *.csv
 index
+*.zip
 
