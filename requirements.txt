@@ -4,3 +4,4 @@ fastapi
 pydantic
 loguru
 fastapi[standard]
+llama-index-llms-groq

@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from llama_index.core.base.base_query_engine import BaseQueryEngine
 from llama_index.core.readers.file.base import SimpleDirectoryReader
+from llama_index.core.storage import StorageContext
 
 # Responsável por ler documentos de um diretório e prepará-los para serem indexados.
 
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, load_index_from_storage
 
 # Constrói um índice vetorial dos documentos carregados, permitindo a realização de consultas.
 
@@ -19,19 +22,32 @@ def ingest() -> VectorStoreIndex:
     Carrega documentos do diretório, cria um índice vetorial a partir dos documentos e o persiste em um arquivo.
 
     Returns:
-        VectorStoreIndex: O índice vetorial criado.
+        VectorStoreIndex: O índice vetorial criado ou carregado.
     """
 
-    # Carrega os documentos do diretório
-    documents = SimpleDirectoryReader("data").load_data()
+    index_path = Path("./index")
 
-    # Cria o índice a partir dos documentos
-    index = VectorStoreIndex.from_documents(documents)
+    if not index_path.exists():
+        logger.info("Crindo um novo índice ...")
 
-    # Salva o índice em um arquivo
-    index.storage_context.persist(persist_dir="index")
+        # Carrega os documentos do diretório
+        documents = SimpleDirectoryReader("data").load_data()
 
-    logger.info("Índice criado com sucesso!")
+        # Cria o índice a partir dos documentos
+        index = VectorStoreIndex.from_documents(documents)
+
+        # Salva o índice em um arquivo
+        index.storage_context.persist(persist_dir="index")
+
+        logger.info("Índice criado com sucesso!")
+
+    if index_path.exists():
+        logger.info("Índice já existe. Carregando o índice do diretório persistente...")
+
+        storage_context = StorageContext.from_defaults(persist_dir="index")
+        index = load_index_from_storage(storage_context)
+
+        logger.info("Indice carregado!")
 
     return index
 
@@ -87,9 +103,9 @@ if __name__ == "__main__":
         ]:
             break
 
+        logger.info("Pesquisando na base de dados...")
+
         # Realiza uma consulta usando o motor de consulta
         r = query_engine.query(pergunta)
-
-        logger.info("Pesquisando na base de dados...")
 
         print(r)

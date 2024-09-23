@@ -3,8 +3,8 @@ from typing import Dict
 from fastapi import FastAPI
 from llama_index.core import Response
 
-from rag import querying, ingest
-from schemas import Question, Answer, Members
+from .rag import querying, ingest
+from .schemas import Question, Answer, Members
 
 app = FastAPI(description="RAG - Fatecana")
 
